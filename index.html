@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f4f0e6">
+<title>Second Sight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="ink"></canvas>
+
+<div id="touch">
+  <div id="t-stick"><div id="t-knob"></div></div>
+  <button id="t-act" class="tbtn" aria-label="Point or hold to name">✎</button>
+  <button id="t-menu" class="tbtn small" aria-label="Menu">☰</button>
+</div>
+<div id="hud" class="hidden">
+  <div id="idea"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6c-11 0-19 8-19 18 0 7 4 11 7 15 2 3 3 5 3 8h18c0-3 1-5 3-8 3-4 7-8 7-15 0-10-8-18-19-18z"/><path d="M24 51h16M26 56h12M29 61h6"/></svg><span class="hand">Good Idea</span></div>
+  <div id="notes"></div>
+  <div id="room" class="hand"></div>
+  <div id="memo" class="hand"></div>
+  <div id="next" class="hand"></div>
+  <div id="prompt"></div>
+  <div id="hint"></div>
+  <div id="subs"><span id="subs-line"></span></div>
+</div>
+
+<div id="title" class="screen hidden">
+  <div class="card">
+    <h1 id="title-h" class="hand">Second Sight</h1>
+    <p class="sub hand">two detectives, a flat, and what they didn't tell you</p>
+    <div class="menu">
+      <button class="item" data-act="start" data-case="c1">Case 1 &nbsp;<span class="dim">Flat 4B</span></button>
+      <button class="item" data-act="start" data-case="c2">Case 2 &nbsp;<span class="dim">Harrow Court</span></button>
+      <button class="item row" data-act="toggle" data-key="look">Look <span class="val"></span></button>
+      <button class="item" data-act="settings">Settings</button>
+    </div>
+    <div class="controls desk">
+      <div><b>Look</b> mouse &middot; right stick &nbsp;&nbsp; <b>Walk</b> WASD &middot; left stick</div>
+      <div><b>Click / E / A</b>: ask about what you point at &mdash; each click draws it more, then searches it &nbsp;&middot;&nbsp; <b>hold</b> on something to tell them it's the answer &nbsp;&middot;&nbsp; <b>Esc / Start</b>: menu &nbsp;&middot;&nbsp; <b>Tab / View</b>: case notes</div>
+      <div class="dim">Headphones and sound on. Click or press a key once so the browser lets the voice play.</div>
+    </div>
+    <div class="controls tch">
+      <div><b>Left thumb</b> walk &nbsp;&middot;&nbsp; <b>drag</b> look &nbsp;&middot;&nbsp; <b>tap</b> anything to ask about it, draw it more, search it &nbsp;&middot;&nbsp; <b>hold</b> on something to tell them it's the answer</div>
+      <div class="dim">Landscape, headphones, sound on.</div>
+    </div>
+  </div>
+</div>
+
+<div id="pause" class="screen hidden">
+  <div class="card small">
+    <h2 class="hand">Paused</h2>
+    <div class="menu">
+      <button class="item" data-act="resume">Keep looking</button>
+      <button class="item" data-act="memories">Case notes</button>
+      <button class="item" data-act="settings">Settings</button>
+      <button class="item" data-act="restart">Start over</button>
+      <button class="item" data-act="title">Back to the title</button>
+    </div>
+  </div>
+</div>
+
+<div id="memories" class="screen hidden">
+  <div class="card notebook">
+    <h2 class="hand">Case notes</h2>
+    <ul id="mem-list"></ul>
+    <p id="mem-guesses" class="dim"></p>
+    <div class="menu"><button class="item" data-act="back">Back</button></div>
+  </div>
+</div>
+
+<div id="settings" class="screen hidden">
+  <div class="card small">
+    <h2 class="hand">Settings</h2>
+    <div class="menu grid">
+      <label class="item row">Master <input type="range" min="0" max="1" step="0.05" data-key="master"></label>
+      <label class="item row">Voice <input type="range" min="0" max="1" step="0.05" data-key="voice"></label>
+      <label class="item row">Effects <input type="range" min="0" max="1" step="0.05" data-key="sfx"></label>
+      <label class="item row">Room sound <input type="range" min="0" max="1" step="0.05" data-key="amb"></label>
+      <label class="item row">Music <input type="range" min="0" max="1" step="0.05" data-key="music"></label>
+      <label class="item row">Look speed <input type="range" min="0.4" max="2" step="0.1" data-key="sens"></label>
+      <button class="item row" data-act="toggle" data-key="subs">Subtitles <span class="val"></span></button>
+      <button class="item row" data-act="toggle" data-key="subSize">Subtitle size <span class="val"></span></button>
+      <button class="item row" data-act="toggle" data-key="invert">Invert look <span class="val"></span></button>
+      <button class="item row" data-act="toggle" data-key="mute">Mute <span class="val"></span></button>
+      <button class="item row" data-act="toggle" data-key="quality">Quality <span class="val"></span></button>
+      <button class="item row" data-act="toggle" data-key="suggest">Suggestions <span class="val"></span></button>
+      <button class="item row" data-act="toggle" data-key="look">Look <span class="val"></span></button>
+      <button class="item" data-act="back">Back</button>
+    </div>
+  </div>
+</div>
+
+<div id="end" class="screen hidden">
+  <div class="card">
+    <div id="end-stars"></div>
+    <div id="end-body"></div>
+    <div class="menu">
+      <button class="item" data-act="next" id="end-next">Next case</button>
+      <button class="item" data-act="again">Play this case again</button>
+      <button class="item" data-act="title">Title</button>
+    </div>
+  </div>
+</div>
+
+<div id="fatal" class="hidden"></div>
+
+<script src="js/util.js"></script>
+<script src="js/gl.js"></script>
+<script src="js/shaders.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/kit.js"></script>
+<script src="js/case1.js"></script>
+<script src="js/case2.js"></script>
+<script src="js/home.js"></script>
+<script src="js/figure.js"></script>
+<script src="js/render.js"></script>
+<script src="js/world.js"></script>
+<script src="js/ink.js"></script>
+<script src="js/input.js"></script>
+<script src="js/sfx_data.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/voice_data.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/memory.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
